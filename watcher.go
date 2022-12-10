@@ -18,10 +18,6 @@ import (
 // N.B -- capitalized, so exported.
 type MyWatcher fsnotify.Watcher // a semi-convenient alias
 
-// Main Command line monitors a specified directory and dumps
-// fsnotify.Write events.
-//
-// it takes No arguments
 func main() {
 
 	verbose := flag.Bool("v", false, "enable for more detail")
@@ -33,10 +29,17 @@ func main() {
 		// and exit
 	}
 
+	os.Exit(Main(flag.Arg(0), *verbose))
+}
+
+// Main Command line monitors a specified directory and dumps
+// fsnotify.Write events.
+func Main(path string, verbosity bool) int {
+
 	log.Logger = log.Output(zerolog.ConsoleWriter{
 		Out: os.Stderr, TimeFormat: time.RFC3339})
 
-	if *verbose {
+	if verbosity {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	} else {
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -83,4 +86,6 @@ func main() {
 		log.Fatal().Err(err).Msg("watcher.add")
 	}
 	<-done
+
+	return 0
 }
